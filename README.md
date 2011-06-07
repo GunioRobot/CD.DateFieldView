@@ -23,7 +23,8 @@ produce something worthy of inclusion.
 
 ####General Notes
 
-The DateFieldView has been tested with the following browsers:
+The DateFieldView has been tested with the following browsers:  
+
 *   Safari ``Version 5.0.5 (6533.21.1)``
 *   Chrome  ``Version 11.0.696.77``
 *   Firefox ``Version 4.0.1``
