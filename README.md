@@ -18,4 +18,5 @@ produce something worthy of inclusion.
 *   Needs dynamic resizing and position awareness - but at this point I do not know how to do this (both)
 *   Needs month drop-down selector as opposed to just incremental scrolling (calendar)
 *   Possibly remove statechart from view?
+*   Possibly make use of Dynamic CSS (SC.CSSStyleSheet)?
 *   ...

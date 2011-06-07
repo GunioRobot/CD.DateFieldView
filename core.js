@@ -1,12 +1,12 @@
-/*globals Xt */
+/*globals CD */
 
 /** @namespace
 
   @extends SC.Object
 */
-Xt = SC.Object.create({
+CD = SC.Object.create({
 
-  NAMESPACE: 'Xt',
+  NAMESPACE: 'CD',
   VERSION: '0.1.0',
 
 }) ;

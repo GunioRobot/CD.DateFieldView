@@ -1,10 +1,10 @@
-/*globals Xt */
+/*globals CD */
 
 /** @class
 
-  The Xt.CalendarView is a selectable calendar which
+  The CD.CalendarView is a selectable calendar which
   aims to support date selection in collaboration with 
-  the Xt.DateFieldView. 
+  the CD.DateFieldView. 
   
   This is a BETA.
   
@@ -23,7 +23,7 @@
 
   @extends SC.View
 */
-Xt.CalendarView = SC.View.extend({
+CD.CalendarView = SC.View.extend({
 
   // ..........................................................
   // PROPERTIES 
@@ -39,7 +39,7 @@ Xt.CalendarView = SC.View.extend({
 
     @type String
   */
-  classNames: 'xt-calendarview',
+  classNames: 'cd-calendarview',
 
   /**
     Because of the placement and custom rendering
@@ -61,7 +61,7 @@ Xt.CalendarView = SC.View.extend({
 
   /**
     The view that will be responding to actions
-    thrown by the view. In the case of Xt.DateFieldView
+    thrown by the view. In the case of CD.DateFieldView
     this will be set to the parent which is also
     the statechart.
 
@@ -109,7 +109,7 @@ Xt.CalendarView = SC.View.extend({
   */
   prevMonthButton: SC.ButtonView.extend({
     useStaticLayout: YES,
-    classNames: 'xt-calendarview-button left',
+    classNames: 'cd-calendarview-button left',
     title: "<",
     action: 'prevClicked',
     target: 'parentView.targetView',
@@ -126,7 +126,7 @@ Xt.CalendarView = SC.View.extend({
   */
   nextMonthButton: SC.ButtonView.extend({
     useStaticLayout: YES,
-    classNames: 'xt-calendarview-button right',
+    classNames: 'cd-calendarview-button right',
     title: ">",
     action: 'nextClicked',
     target: 'parentView.targetView',
@@ -187,8 +187,8 @@ Xt.CalendarView = SC.View.extend({
     var side = parseInt((widthOfFrame - (7*(2*cellmargin))) / 7 );
 
     context.push(
-      '<div class="xt-calendarview-container">',
-      '<div class="xt-calendarview-header">'
+      '<div class="cd-calendarview-container">',
+      '<div class="cd-calendarview-header">'
     );
 
     context = context.begin(
@@ -198,7 +198,7 @@ Xt.CalendarView = SC.View.extend({
     context = context.end();
 
     context.push(
-      '<span class="xt-calendarview-header-span">' + this.get('monthAndYear') + '</span>'
+      '<span class="cd-calendarview-header-span">' + this.get('monthAndYear') + '</span>'
     );
 
     context = context.begin(
@@ -207,7 +207,7 @@ Xt.CalendarView = SC.View.extend({
     this.get('nextMonthButton').renderToContext(context, YES);
     context = context.end();
     context.push(
-      '</div><div class="xt-calendarview-body">'
+      '</div><div class="cd-calendarview-body">'
     );
 
     // calculate and render the calendar grid/days
@@ -257,7 +257,7 @@ Xt.CalendarView = SC.View.extend({
         else
           _d.selected = "" ;
 
-        day = "<div id='xt-calendarview-" + _d.month + "-" + _d.day + "-" + _d.year + "' class='xt-calendarview-grid-day";
+        day = "<div id='cd-calendarview-" + _d.month + "-" + _d.day + "-" + _d.year + "' class='cd-calendarview-grid-day";
         if(_d.selected)
           day += " " + _d.selected;
         if(_d.fade)

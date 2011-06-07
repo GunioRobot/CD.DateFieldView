@@ -1,10 +1,10 @@
-/*globals Xt */
+/*globals CD */
 
 sc_require('views/calendar');
 
 /** @class
 
-  The Xt.DateFieldView is a textfield that displays a
+  The CD.DateFieldView is a textfield that displays a
   formatted date string, accepts many date string formats
   to set a date and provides a popup selectable calendar.
   
@@ -36,7 +36,7 @@ sc_require('views/calendar');
 
   @extends SC.View
 */
-Xt.DateFieldView = SC.View.extend(
+CD.DateFieldView = SC.View.extend(
   SC.StatechartManager, SC.Control, {
 
   // ..........................................................
@@ -131,7 +131,7 @@ Xt.DateFieldView = SC.View.extend(
 
     this.calendar = SC.PickerPane.create({
       layout: that.get('calendarLayout') || { width: 300, height: 300 },
-      contentView: Xt.CalendarView.extend({
+      contentView: CD.CalendarView.extend({
         layout: that.get('calendarLayout') || this.get('parentView.layout'),
         targetView: that,
         selectedDateBinding: '.targetView.selectedDate',

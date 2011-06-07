@@ -6,7 +6,7 @@
 }
 
 
-.xt-calendarview-grid-day {
+.cd-calendarview-grid-day {
   width: 15px;
   height: 15px;
   padding: 2px;
@@ -15,45 +15,45 @@
   background-color: #eee;
   text-align: left;
 }
-.xt-calendarview-grid-day.fade {
+.cd-calendarview-grid-day.fade {
   background-color: #ddd;
 }
-.xt-calendarview-grid-day.selected-day {
+.cd-calendarview-grid-day.selected-day {
   background-color: #222;
   color: #fff;
 }
 
-.xt-calendarview {
+.cd-calendarview {
   /*position: fixed;*/
   /*
   position: fixed;
   display: inline-block;
   */
 }
-.xt-calendarview-container {
+.cd-calendarview-container {
 }
-.xt-calendarview-body {
+.cd-calendarview-body {
   text-align: center;
 }
-.xt-calendarview-header {
+.cd-calendarview-header {
   height: 30px !important;
   text-align: center;
 }
-.xt-calendarview-button {
+.cd-calendarview-button {
   /* width: 70px !important; */
   height: 25px !important;
   margin: 0 !important;
 }
 
-.xt-calendarview-button label {
+.cd-calendarview-button label {
   margin: 0 !important;
 }
-.xt-calendarview-header-span {
+.cd-calendarview-header-span {
 }
 
-.xt-calendarview-button.left {
+.cd-calendarview-button.left {
   float: left !important;
 }
-.xt-calendarview-button.right {
+.cd-calendarview-button.right {
   float: right !important;
 }
