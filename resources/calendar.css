@@ -1,0 +1,59 @@
+
+.calendar-2-16-icon {
+  width: 16px !important;
+  height: 16px !important;
+  background: static_url('/images/calendar_2_icon&16.png') no-repeat 0 0;
+}
+
+
+.xt-calendarview-grid-day {
+  width: 15px;
+  height: 15px;
+  padding: 2px;
+  margin: 2px;
+  display: inline-block;
+  background-color: #eee;
+  text-align: left;
+}
+.xt-calendarview-grid-day.fade {
+  background-color: #ddd;
+}
+.xt-calendarview-grid-day.selected-day {
+  background-color: #222;
+  color: #fff;
+}
+
+.xt-calendarview {
+  /*position: fixed;*/
+  /*
+  position: fixed;
+  display: inline-block;
+  */
+}
+.xt-calendarview-container {
+}
+.xt-calendarview-body {
+  text-align: center;
+}
+.xt-calendarview-header {
+  height: 30px !important;
+  text-align: center;
+}
+.xt-calendarview-button {
+  /* width: 70px !important; */
+  height: 25px !important;
+  margin: 0 !important;
+}
+
+.xt-calendarview-button label {
+  margin: 0 !important;
+}
+.xt-calendarview-header-span {
+}
+
+.xt-calendarview-button.left {
+  float: left !important;
+}
+.xt-calendarview-button.right {
+  float: right !important;
+}
