@@ -20,3 +20,11 @@ produce something worthy of inclusion.
 *   Possibly remove statechart from view?
 *   Possibly make use of Dynamic CSS (SC.CSSStyleSheet)?
 *   ...
+
+#HOW TO USE
+
+You can use it as-is or for testing/development purposes (please!) by including it as a 
+framework in your project/app. I would recommend cloning the git repo and then symlinking it
+into your frameworks directory.   
+
+####_Don't forget to add it to the requirements in the Buildfile for the project/app!_
