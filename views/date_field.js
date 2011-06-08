@@ -68,6 +68,15 @@ CD.DateFieldView = SC.View.extend(
   isEditing: NO,
 
   /**
+    The current state of validity of the view relative
+    to the status of the selectedDate.
+
+    @type Bool
+    @default YES
+  */
+  isValid: YES,
+
+  /**
     The layout to be set for the textfield.
 
     @type Object
@@ -93,8 +102,19 @@ CD.DateFieldView = SC.View.extend(
 
   /** @private
     @TODO: Remove dependence on this feature.
+
+    @type SC.DateTime
+    @default SC.DateTime.create() (today's date)
   */
   lastValidDate: SC.DateTime.create(),
+
+  /** @private
+    @TODO: Remove dependence on this feature.
+
+    @type String
+    @default null
+  */
+  lastValue: null,
 
   // ..........................................................
   // METHODS
@@ -154,23 +174,63 @@ CD.DateFieldView = SC.View.extend(
   },
 
   /** @private
+    Replaces the Calendar layer to update it based
+    on validity changes.
+
+    @TODO: this is only necessary because of the
+      order of events and non-concurrent substates
+
+  */
+  isValidDidChange: function() {
+    if(this.get('isValid') === YES)
+      this.getPath('calendar.contentView').replaceLayer();
+  }.observes('isValid'),
+
+  /** @private
+    Determines whether or not the passed value is an operation
+    string (does NOT determine validity).
+
+    @param {String} the value to be tested
+    @return {Bool} if it is/is-not an op string
+  */
+  isOpString: function(value) {
+
+    // if the string is empty or only 1 character long
+    // it is NOT an op string
+    if(!value || value.length <= 1)
+      return NO;
+
+    // BASIC sanity check just to make sure the length is correct
+    // and it begins with a `+' or `-'
+    // @TODO: is there an SC builtin helper to convert arrays to
+    // generic objects for this test?
+    // e.g. convert ['+','-'] to {'+':'', '-':''}
+    if(value.length >= 2 && value.charAt(0) in {'+':'', '-':''})
+      return YES;
+    
+    // default
+    return NO;  
+  },
+
+  /** @private
     Validates an operator or possible operator.
 
     @param {String} representing operation
     @returns {Bool} if it was a valid operation or not
   */
   validateOp: function(value) {
-    if(!value)
-      return NO;
 
-    // determine if the value begins with a +/- binary operator
-    // and is at least 2 characters and anything after the operator
-    // is an integer
-    // @TODO: is there an SC builtin helper to convert arrays to
-    // generic objects for this test?
-    // e.g. convert ['+','-'] to {'+':'', '-':''}
-    if(value.length >= 2 && value.charAt(0) in {'+':'', '-':''}) {
+    // if(!value || value.length <= 1)
+    //   return NO;
 
+    // // determine if the value begins with a +/- binary operator
+    // // and is at least 2 characters and anything after the operator
+    // // is an integer
+    // // @TODO: is there an SC builtin helper to convert arrays to
+    // // generic objects for this test?
+    // // e.g. convert ['+','-'] to {'+':'', '-':''}
+    // if(value.length >= 2 && value.charAt(0) in {'+':'', '-':''}) {
+    if(this.isOpString(value) === YES) {
       // @NOTE: if it is a zero, to spare unnecessary
       // invalid state it will be converted to 'today'
       // regardless of the sign so we return YES
@@ -186,6 +246,11 @@ CD.DateFieldView = SC.View.extend(
       // make sure the value after the operator is actually
       // a determinable number
       if(isNaN(parseInt(value.substr(1, value.length))))
+        return NO;
+
+      // if it contains any letters we invalidate it even
+      // though it was somehow parsed to an int
+      if(value.match(/[a-zA-Z]+/g))
         return NO;
 
       return YES;
@@ -206,7 +271,7 @@ CD.DateFieldView = SC.View.extend(
     // sadly, to make sure this doesn't get called manually
     // go ahead and test the validity of the op to make sure
     // we don't crash anything
-    if(!this.validateOp(value))
+    if(this.validateOp(value) === NO)
 
       // @TODO: needs to be replaced?
       // to be safe and without crashing the thing just return
@@ -232,6 +297,7 @@ CD.DateFieldView = SC.View.extend(
     @returns {Bool} whether or not the value was valid
   */
   validate: function() {
+
     var value = this.get('value');
 
     // @TODO: should be changed to offer use of
@@ -242,14 +308,17 @@ CD.DateFieldView = SC.View.extend(
       return YES;
 
     // determine if it is a valid operator
-    if(this.validateOp(value))
+    if(this.validateOp(value) === YES)
       return YES;
+
+    // if it is an op string...but invalid (as just determined)
+    // we can return false
+    if(this.isOpString(value) === YES)
+      return NO;
 
     // if not empty determine if the value is a
     // valid date known to the javascript Date object
-    var valid = Date.parse(
-      this.get('value')
-    );
+    var valid = Date.parse(this.get('value'));
 
     // if the returned value is not a number
     // then it is invalid
@@ -258,8 +327,7 @@ CD.DateFieldView = SC.View.extend(
 
     // if it is a number, we assume it is a valid
     // determinable date
-    else
-      return YES;
+    else { return YES; }
   }.property('value'),
 
   /** @private
@@ -336,9 +404,16 @@ CD.DateFieldView = SC.View.extend(
   "UNFOCUSED": SC.State.design({
 
     enterState: function() {
-
+      
       if(!this.getPath('owner.layer'))
         return;
+
+      // if the state was left as INVALID then redraw
+      // the calendar and return
+      if(this.get('owner.isValid') === NO) {
+        this.getPath('owner.calendar.contentView').replaceLayer();
+        return;
+      }
 
       var date, value = this.getPath('owner.value');
 
@@ -349,23 +424,58 @@ CD.DateFieldView = SC.View.extend(
       if(!value)
         return;
 
-      if(this.getPath('owner.validate')) {
-        if(this.get('owner').validateOp(value))
+      if(this.getPath('owner.validate') === YES) {
+
+        // if the value is a valid operation parse it
+        // and retrieve the new Date object
+        if(this.get('owner').validateOp(value) === YES)
           date = this.get('owner').parseOp(value);
-        else
-          date = SC.DateTime.create(Date.parse(value));
-        if(!date)
+
+        // otherwise attempt to create a new SC.DateTime object
+        // via the Date object's parse ability (needs a string)
+        else { date = SC.DateTime.create(Date.parse(value)); }
+
+        // if(!date) { return; }
+        if(SC.instanceOf(date, SC.DateTime) === NO && 
+          SC.instanceOf(date, Date) === NO)
           return;
       }
 
+      // do nothing?
+      else { return; }
+
       // update the textfield to show the localized version
       // of the validated Op statement
-      this.setPath('owner.value', this.get('owner').localeDateString(date));
+      // the valueDidChange function will fire an event that will
+      // attempt to update the selectedDate for us
+
+      // retrieve the new value
+      var str = this.get('owner').localeDateString(date);
+
+      // don't actually update it if they are the same
+      if(this.getPath('owner.value') != str)
+        this.setPath('owner.value', this.get('owner').localeDateString(date));
 
     },
 
     // -- Actions
-    valueDidChange: function() {},
+    valueDidChange: function() {
+
+      // @TODO: this shouldn't happen but if it MUST
+      //    there should have been a way to test whether
+      //    or not the calendar was showing
+      //    should bind to the PickerPanes property `isVisibleInWindow'
+
+      // possibly need to redraw the calendar
+
+      // if it is NOT valid, do nothing
+      if(this.getPath('owner.validate') === NO)
+        return;
+
+      // @TODO: this is getting ridiculous...redraw the calendar...
+      this.getPath('owner.calendar.contentView').replaceLayer();
+      
+    },
     isEditing: function() {
       this.gotoState('FOCUSED');
     },
@@ -394,7 +504,21 @@ CD.DateFieldView = SC.View.extend(
       // update its value to the newly updated selectedDate value
       // which was set by the calendar or some other view/controller
       // this.setPath('owner.value', this.getPath('owner.localeDateString'));
-      this.setPath('owner.value', this.get('owner').localeDateString());
+
+      // retrieve the new string
+      var str = this.get('owner').localeDateString();
+
+      // only update if they are different so as not to throw the extra
+      // event
+      if(this.getPath('owner.value') != str)
+        this.setPath('owner.value', this.get('owner').localeDateString());
+
+      // @TODO: hack. ugly.........should not be here!
+      //    THIS SHOULD BE COVERED AND SHOWS A NEED FOR
+      //    CONCURRENT SUBSTATES (e.g. `valid', `invalid')...
+      // validate the value and update isValid if it is
+      this.setPath('owner.isValid', this.getPath('owner.validate'));
+
     },
     calendarLostFocus: function() {
 
@@ -405,7 +529,7 @@ CD.DateFieldView = SC.View.extend(
       // set the value of the textfield to the selected date from
       // the calendar
       // this.setPath('owner.value', this.getPath('owner.localeDateString'));
-      this.setPath('owner.value', this.get('owner').localeDateString());
+      // this.setPath('owner.value', this.get('owner').localeDateString());
 
       // set the textfield to focus for convenience
       // as testing proved the behavior or allowing the
@@ -434,6 +558,19 @@ CD.DateFieldView = SC.View.extend(
 
       enterState: function() {
         this.setPath('owner.isValid', YES);
+
+        // redraw the calendar...because of a single scenario
+        // where a blank value is valid here but needs to reset
+        // the date in the calendar...
+        this.getPath('owner.calendar.contentView').replaceLayer();
+
+        // @TODO: this needs to be updated as there should
+        //  be a far more intelligent communication internally
+        //  about when to update
+
+        // this seems to be a problem as it shouldn't update
+        // without a change being noted...
+
         this.get('statechart').sendEvent('updateSelectedDate');
       },
 
@@ -455,7 +592,21 @@ CD.DateFieldView = SC.View.extend(
 
         // recreate the value as a SC.DateTime object
         // by the following convoluted mess...
-        date = SC.DateTime.create(Date.parse(value));
+
+        // @TODO: this is a problem...
+        // date = SC.DateTime.create(Date.parse(value));
+
+        // since parseOp returns a Date object now...
+        if(SC.instanceOf(value, Date))
+          date = SC.DateTime.create(value.UTC());
+        
+        // if we have a SC.DateTime object...
+        else if(SC.instanceOf(value, SC.DateTime))
+          date = value;
+
+        // we need to attempt to parse the value of the text
+        // and it *should* work since its been validated...
+        else { date = SC.DateTime.create(Date.parse(value)); }
 
         // determine if the current `selectedDate' is...anything
         // if not, set `lastValidDate' and `selectedDate' to
@@ -485,20 +636,28 @@ CD.DateFieldView = SC.View.extend(
 
         this.setPath('owner.isValid', NO);
 
+        // redraw the calendar so it will update to correct day (today)
+        this.getPath('owner.calendar.contentView').replaceLayer();
+
         // if there is not `current' value test for last
         // if there is no `last' return its ok to be null
         if(!current) {
           if(!last)
             return;
+
+          // this is being rethought...
+          // maybe it should not do anything
           else {
-            this.setPath('owner.selectedDate',
-              this.getPath('owner.lastValidDate'));
+            // this.setPath('owner.selectedDate',
+            //   this.getPath('owner.lastValidDate'));
             return;
           }
         }
-        else if(current.isEqual(last) === NO)
-          this.setPath('owner.selectedDate',
-            this.getPath('owner.lastValidDate'));
+
+        // same as above...
+        // else if(current.isEqual(last) === NO)
+        //   this.setPath('owner.selectedDate',
+        //     this.getPath('owner.lastValidDate'));
       },
     }),
 
@@ -511,6 +670,26 @@ CD.DateFieldView = SC.View.extend(
       this.gotoState('UNFOCUSED');
     },
     valueDidChange: function() {
+
+      // test to see if the previous value is the
+      // the same...
+      // @TODO: this also needs to be updated to a
+      //    new method based on better inter-communication
+      var last = this.getPath('owner.lastValue'),
+        current = this.getPath('owner.value');
+        
+      // if last is unknown set it to the current value  
+      // and continue to VALIDATING state
+      if(!last) { this.setPath('owner.lastValue', current); }
+
+      // if last and current are the same then do nothing
+      else if(last == current) { return; }
+
+      // this implicitly handles the scenario where
+      // last was not undefined or '' and did not
+      // equal the current value
+
+      // continue to VALIDATING state
       this.gotoState('VALIDATING');
     },
 

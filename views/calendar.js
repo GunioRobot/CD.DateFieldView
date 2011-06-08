@@ -146,7 +146,7 @@ CD.CalendarView = SC.View.extend({
   */
   click: function(e) {
     var selection = this._parseDateId(e);
-    if(SC.typeOf(selection) !== 'object')
+    if(SC.instanceOf(selection, SC.DateTime) === NO)
       return NO;
     else {
       this.set('selectedDate', selection);
@@ -181,7 +181,8 @@ CD.CalendarView = SC.View.extend({
     @TODO: This needs serious revision.
   */
   render: function(context, firstTime) {
-    var content = [], that = this.get('parentView');
+    // var content = [], that = this.get('parentView');
+    var content = [], that = this.get('targetView');
     var widthOfFrame = this.getPath('layout.width');
     var cellmargin = 1;
     var side = parseInt((widthOfFrame - (7*(2*cellmargin))) / 7 );
@@ -215,7 +216,27 @@ CD.CalendarView = SC.View.extend({
     // conevenience access to the base selectedDate
     // selected is the currently selected date
     // var selected = that.get('selectedDate') ;
-    var selected = this.get('selectedDate') || that.get('selectedDate') || SC.DateTime.create() ;
+    // var selected = this.get('selectedDate') || that.get('selectedDate') || SC.DateTime.create() ;
+
+    var selected;
+
+    // if the value is null or empty in the textfield that
+    // doesn't mean we don't have some quirky value determined
+    // so default to today's date for safety
+    // @TODO: this may not be the most appropriate response
+    if(that.get('value') == '' || !that.get('value')
+      || that.get('isValid') === NO) {
+      selected = SC.DateTime.create();
+    }
+
+    // otherwise we should be able to safely use our date and
+    // if in the worst case unforseen scenario we can call 
+    // the parent's (only necessary if the binding fails?)
+    else { selected = this.get('selectedDate') || that.get('selectedDate'); }
+
+    // sanity check
+    if(!selected || SC.instanceOf(selected, SC.DateTime) === NO)
+      selected = SC.DateTime.create();
 
     // starting month is the current month starting at the first day
     var start_month = SC.DateTime.create({ day: 1, month: selected.get('month'), year: selected.get('year') }) ;
@@ -279,7 +300,7 @@ CD.CalendarView = SC.View.extend({
   },
 
   /** @private */
-  didCreateLayer: function() {},
+  didCreateLayer: function() { },
 
   /** @private
     Accepts an event and attempts to parse
