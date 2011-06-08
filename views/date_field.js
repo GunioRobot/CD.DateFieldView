@@ -160,7 +160,6 @@ CD.DateFieldView = SC.View.extend(
     @returns {Bool} if it was a valid operation or not
   */
   validateOp: function(value) {
-
     if(!value)
       return NO;
 
@@ -223,7 +222,8 @@ CD.DateFieldView = SC.View.extend(
     date = date.advance({ day: parseInt((op == "+" ? "" : "-") + num) });
 
     // return the value of the advanced date in milliseconds
-    return date.toISO8601();
+    // return date.toISO8601();
+    return date;
   },
 
   /** @private
@@ -282,8 +282,9 @@ CD.DateFieldView = SC.View.extend(
     if(!dateObj && !this.get('selectedDate'))
       return '';
       
-    if(SC.instanceOf(dateObj, SC.DateTime))
+    if(SC.instanceOf(dateObj, SC.DateTime)) {
       date = new Date(dateObj.get('milliseconds'));
+    }
 
     else if(SC.instanceOf(dateObj, Date))
       date = dateObj;
