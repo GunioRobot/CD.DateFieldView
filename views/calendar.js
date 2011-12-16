@@ -3,32 +3,32 @@
 /** @class
 
   The CD.CalendarView is a selectable calendar which
-  aims to support date selection in collaboration with 
-  the CD.DateFieldView. 
-  
+  aims to support date selection in collaboration with
+  the CD.DateFieldView.
+
   This is a BETA.
-  
+
   Features it currently *partially* implements:
-  
+
     - date set by bound object
     - reports selected date
     - month-scrolling forward/backward
-  
+
   Features that have yet to be added:
-    
+
     - drop-down month selection
     - easier theming
     - more intelligent dynamic size control
-    - scroll by year not just month  
+    - scroll by year not just month
 
   @extends SC.View
 */
 CD.CalendarView = SC.View.extend({
 
   // ..........................................................
-  // PROPERTIES 
+  // PROPERTIES
   //
-  
+
   /** @private */
   childViews: 'nextMonthButton prevMonthButton'.w(),
 
@@ -54,8 +54,8 @@ CD.CalendarView = SC.View.extend({
     This can be reset to any necessary size and
     the layout internally will attempt, in a rather
     unsophisticated manner, to adjust to the size
-    
-    @type Object 
+
+    @type Object
   */
   layout: { width: 300, height: 300 },
 
@@ -65,7 +65,7 @@ CD.CalendarView = SC.View.extend({
     this will be set to the parent which is also
     the statechart.
 
-    @type 
+    @type
     @default null
   */
   targetView: null,
@@ -73,16 +73,16 @@ CD.CalendarView = SC.View.extend({
   /**
     The bound date to read/write to with changes
     to dates.
-    
+
     @type SC.DateTime
-    @default null 
+    @default null
   */
   selectedDate: null,
 
   /**
     Properties that require display changes/updates.
-    
-    @type String  
+
+    @type String
   */
   displayProperties: 'selectedDate'.w(),
 
@@ -141,8 +141,8 @@ CD.CalendarView = SC.View.extend({
     calendar view. If the click selected a valid
     date then the selectedDate property will be
     updated accordingly.
-    
-    @returns {void} 
+
+    @returns {void}
   */
   click: function(e) {
     var selection = this._parseDateId(e);
@@ -156,11 +156,11 @@ CD.CalendarView = SC.View.extend({
   /** @private
     Detects changes to the selectedDate property
     and updates accordingly.
-    
+
     @TODO: There seems to be another problem that
       makes this necessary. This may not be necessary
       if the issues to do with rendering are fixed.
-    
+
     @observes selectedDate
   */
   selectedDateDidChange: function() {
@@ -170,7 +170,7 @@ CD.CalendarView = SC.View.extend({
   /** @private
     @TODO: The current implementation relies on child-views
       but renders them arbitrarily in the overloaded render
-      function the view uses a static layout. 
+      function the view uses a static layout.
   */
   renderChildViews: function() {},
 
@@ -230,7 +230,7 @@ CD.CalendarView = SC.View.extend({
     }
 
     // otherwise we should be able to safely use our date and
-    // if in the worst case unforseen scenario we can call 
+    // if in the worst case unforseen scenario we can call
     // the parent's (only necessary if the binding fails?)
     else { selected = this.get('selectedDate') || that.get('selectedDate'); }
 

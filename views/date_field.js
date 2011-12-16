@@ -7,11 +7,11 @@ sc_require('views/calendar');
   The CD.DateFieldView is a textfield that displays a
   formatted date string, accepts many date string formats
   to set a date and provides a popup selectable calendar.
-  
+
   This is a BETA.
-  
+
   Features it currently *partially* implements:
-  
+
     - some locale independant date formatting/
       validation
     - date selection by popup selectable calendar
@@ -24,9 +24,9 @@ sc_require('views/calendar');
       any form/view/pane
     - reformats valid user typed input to a formal
       date string format
-  
+
   Features that have yet to be added:
-    
+
     - true locale independence
       - includes formatting of date strings via
         preference and/or default regional setting (?)
@@ -40,7 +40,7 @@ CD.DateFieldView = SC.View.extend(
   SC.StatechartManager, SC.Control, {
 
   // ..........................................................
-  // PROPERTIES 
+  // PROPERTIES
   //
 
   /** @private
@@ -207,9 +207,9 @@ CD.DateFieldView = SC.View.extend(
     // e.g. convert ['+','-'] to {'+':'', '-':''}
     if(value.length >= 2 && value.charAt(0) in {'+':'', '-':''})
       return YES;
-    
+
     // default
-    return NO;  
+    return NO;
   },
 
   /** @private
@@ -335,12 +335,12 @@ CD.DateFieldView = SC.View.extend(
     date. Takes a passed date or uses the currently
     selected date (default). Can handle a native
     Javascript Date object or a SC.DateTime object.
-    
-    @TODO: This currently only works for the U.S. 
+
+    @TODO: This currently only works for the U.S.
       locale due to the length of the default date
-      string formats. Need an appropriate way to 
-      handle this? 
-    
+      string formats. Need an appropriate way to
+      handle this?
+
     @param (optional) {SC.DateTime} OR {Date}
     @returns {String}
   */
@@ -349,7 +349,7 @@ CD.DateFieldView = SC.View.extend(
 
     if(!dateObj && !this.get('selectedDate'))
       return '';
-      
+
     if(SC.instanceOf(dateObj, SC.DateTime)) {
       date = new Date(dateObj.get('milliseconds'));
     }
@@ -404,7 +404,7 @@ CD.DateFieldView = SC.View.extend(
   "UNFOCUSED": SC.State.design({
 
     enterState: function() {
-      
+
       if(!this.getPath('owner.layer'))
         return;
 
@@ -436,7 +436,7 @@ CD.DateFieldView = SC.View.extend(
         else { date = SC.DateTime.create(Date.parse(value)); }
 
         // if(!date) { return; }
-        if(SC.instanceOf(date, SC.DateTime) === NO && 
+        if(SC.instanceOf(date, SC.DateTime) === NO &&
           SC.instanceOf(date, Date) === NO)
           return;
       }
@@ -474,7 +474,7 @@ CD.DateFieldView = SC.View.extend(
 
       // @TODO: this is getting ridiculous...redraw the calendar...
       this.getPath('owner.calendar.contentView').replaceLayer();
-      
+
     },
     isEditing: function() {
       this.gotoState('FOCUSED');
@@ -492,7 +492,7 @@ CD.DateFieldView = SC.View.extend(
     },
     prevClicked: function() {
       var date = this.getPath('owner.selectedDate') ||
-        this.getPath('owner.calendar.selectedDate') || 
+        this.getPath('owner.calendar.selectedDate') ||
         SC.DateTime.create();
       this.setPath('owner.selectedDate',
         date.advance({ month: -1 })
@@ -599,7 +599,7 @@ CD.DateFieldView = SC.View.extend(
         // since parseOp returns a Date object now...
         if(SC.instanceOf(value, Date))
           date = SC.DateTime.create(value.UTC());
-        
+
         // if we have a SC.DateTime object...
         else if(SC.instanceOf(value, SC.DateTime))
           date = value;
@@ -677,8 +677,8 @@ CD.DateFieldView = SC.View.extend(
       //    new method based on better inter-communication
       var last = this.getPath('owner.lastValue'),
         current = this.getPath('owner.value');
-        
-      // if last is unknown set it to the current value  
+
+      // if last is unknown set it to the current value
       // and continue to VALIDATING state
       if(!last) { this.setPath('owner.lastValue', current); }
 
